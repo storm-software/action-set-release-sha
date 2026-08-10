@@ -1,15 +1,15 @@
 #!/usr/bin/env zx
 /* -------------------------------------------------------------------
 
-             🗲 Storm Software - Minimal Template
+       🗲 Storm Software - Action Set Release Sha
 
- This code was released as part of the Minimal Template project. Minimal Template
+ This code was released as part of the Action Set Release Sha project. Action Set Release Sha
  is maintained by Storm Software under the Apache-2.0 license, and is
  free for commercial and private use. For more information, please visit
- our licensing page at https://stormsoftware.com/licenses/projects/minimal-template.
+ our licensing page at https://stormsoftware.com/licenses/projects/action-set-release-sha.
 
  Website:                  https://stormsoftware.com
- Repository:               https://github.com/storm-software/minimal-template
+ Repository:               https://github.com/storm-software/action-set-release-sha
  Documentation:            https://docs.stormsoftware.com
  Contact:                  https://stormsoftware.com/contact
 
@@ -17,8 +17,6 @@
 
  ------------------------------------------------------------------- */
 
-import { existsSync } from "node:fs";
-import { mkdir } from "node:fs/promises";
 import { $, argv, chalk, echo } from "zx";
 
 try {
@@ -50,20 +48,14 @@ try {
     );
   }
 
-  if (!existsSync("./dist")) {
-    await mkdir("./dist", { recursive: true });
-  }
-
-  proc = $`pnpm copyfiles README.md LICENSE action.yml dist`.timeout(
-    `${30 * 60}s`
-  );
+  proc = $`pnpm exec tsdown --config tsdown.config.ts`.timeout(`${30 * 60}s`);
   proc.stdout.on("data", data => {
     echo`${data}`;
   });
   result = await proc;
   if (result.exitCode !== 0) {
     throw new Error(
-      `An error occurred while copying files to the dist directory: \n\n${result.message}\n`
+      `An error occurred while building the project: \n\n${result.message}\n`
     );
   }
 

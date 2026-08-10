@@ -1,14 +1,14 @@
 {
-  "name": "minimal-template",
+  "name": "action-set-release-sha",
   "version": "0.0.1",
   "private": true,
   "description": "A GitHub template used by Storm Software for minimal/single project repositories",
   "keywords": ["github-action", "devenv", "storm-software"],
   "homepage": "https://stormsoftware.com",
-  "bugs": "https://github.com/storm-software/minimal-template/issues",
+  "bugs": "https://github.com/storm-software/action-set-release-sha/issues",
   "repository": {
     "type": "github",
-    "url": "https://github.com/storm-software/minimal-template.git"
+    "url": "https://github.com/storm-software/action-set-release-sha.git"
   },
   "funding": {
     "type": "github",
@@ -45,8 +45,10 @@
     "update-storm": "pnpm exec zx scripts/update-storm.mjs",
     "view-config": "pnpm exec storm-config"
   },
-  "prettier": "@storm-software/prettier/config.json",
+  "prettier": "@storm-software/prettier",
   "devDependencies": {
+    "@actions/core": "catalog:",
+    "@actions/github": "catalog:",
     "@storm-software/config": "catalog:",
     "@storm-software/config-tools": "catalog:",
     "@storm-software/cspell": "catalog:",
@@ -57,12 +59,16 @@
     "@storm-software/pnpm-tools": "catalog:",
     "@storm-software/prettier": "catalog:",
     "@storm-software/tsconfig": "catalog:",
+    "@types/node": "catalog:",
     "copyfiles": "catalog:",
     "eslint": "catalog:",
+    "is-ci": "catalog:",
     "lefthook": "catalog:",
     "prettier": "catalog:",
     "rimraf": "catalog:",
+    "tsdown": "catalog:",
     "unrs-resolver": "catalog:",
+    "yoctocolors": "catalog:",
     "zx": "catalog:"
   },
   "packageManager": "pnpm@11.1.2",

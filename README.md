@@ -17,7 +17,7 @@
 </div>
 <br />
 
-A GitHub template used by Storm Software for minimal/single project repositories
+A GitHub action used to set the release SHA for a given repository.
 
 <h3 align="center">💻 Visit <a href="https://stormsoftware.com" target="_blank">stormsoftware.com</a> to stay up to date with this developer</h3>
 <br />
@@ -67,7 +67,7 @@ A GitHub template used by Storm Software for minimal/single project repositories
 
 # Quick Features
 
-A GitHub template used by Storm Software for minimal/single project repositories
+A GitHub action used to set the release SHA for a given repository.
 
 <div align="right">[ <a href="#table-of-contents">Back to top ▲</a> ]</div>
 <br />
@@ -75,7 +75,7 @@ A GitHub template used by Storm Software for minimal/single project repositories
 # Getting Started
 
 Once the code is pulled locally, open a command prompt and run `pnpm install` in
-the root repo directory (/minimal-template).
+the root repo directory (/action-set-release-sha).
 
 <div align="right">[ <a href="#table-of-contents">Back to top ▲</a> ]</div>
 <br />

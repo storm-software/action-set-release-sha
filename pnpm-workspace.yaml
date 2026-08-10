@@ -3,6 +3,8 @@ allowBuilds:
   nx: false
   unrs-resolver: true
 catalog:
+  "@actions/core": ^3.0.1
+  "@actions/github": ^9.1.1
   "@storm-software/config": ^1.138.10
   "@storm-software/config-tools": ^1.190.73
   "@storm-software/cspell": ^0.46.141
@@ -13,7 +15,11 @@ catalog:
   "@storm-software/pnpm-tools": ^0.7.84
   "@storm-software/prettier": ^0.59.126
   "@storm-software/tsconfig": ^0.48.140
+  "@types/node": ^26.2.0
+  is-ci: ^4.1.0
+  tsdown: ^0.22.14
   unrs-resolver: ^1.12.2
+  yoctocolors: ^2.2.0
   zx: ^8.8.5
   prettier: ^3.8.4
   rimraf: ^6.1.3

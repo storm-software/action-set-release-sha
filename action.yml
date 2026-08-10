@@ -1,0 +1,52 @@
+# Note: This is a composite GitHub Actions, it should do all env setup, caching an so on, so other pipelines can just compose their own stuff on top of that.
+# Docs: https://docs.github.com/en/actions/creating-actions/creating-a-composite-action
+
+name: "Storm Software - Set Release SHA"
+description: "A composite GitHub action used to set the release SHA for a given repository."
+author: "sullivanpj"
+
+branding:
+  icon: "code"
+  color: "gray-dark"
+
+inputs:
+  gh-token:
+    description: "The GitHub token used to perform git operations"
+    default: ${{ github.token }}
+  main-branch-name:
+    description: "The name of the main branch in your repo, used as the target of PRs. E.g. main, master etc"
+    default: "main"
+  remote:
+    description: "The name of the remote to fetch from"
+    default: "origin"
+  set-environment-variables-for-job:
+    description: "Applies the derived SHAs for base and head as NX_BASE and NX_HEAD environment variables within the current Job"
+    default: "true"
+  error-on-no-successful-workflow:
+    description: "By default, if no successful workflow is found on the main branch to determine the SHA, we will log a warning and use HEAD~1. Enable this option to error and exit instead."
+    default: "false"
+  fallback-sha:
+    description: "Fallback SHA to use if no successful workflow run is found."
+    required: false
+    default: ""
+  last-successful-event:
+    description: "The type of event to check for the last successful commit corresponding to that workflow-id, e.g. push, pull_request, release etc"
+    default: "push"
+  working-directory:
+    description: "The directory where your repository is located"
+    default: "."
+  use-previous-merge-group-commit:
+    description: "When using merge-group, use the previous commit in the group as the base SHA"
+    default: "true"
+
+outputs:
+  base:
+    description: The value intended for use with --base or NX_BASE in all subsequent `nx affected` commands within the current workflow
+  head:
+    description: The value intended for use with --head or NX_HEAD in all subsequent `nx affected` commands within the current workflow
+  noPreviousBuild:
+    description: "Used to check if a previous run was found in order to perform additional logic later on in your workflow, the only possible values is the string 'true', otherwise it won't be set"
+
+runs:
+  using: "node24"
+  main: "dist/index.cjs"

@@ -1,14 +1,14 @@
 /* -------------------------------------------------------------------
 
-             🗲 Storm Software - Minimal Template
+       🗲 Storm Software - Action Set Release Sha
 
- This code was released as part of the Minimal Template project. Minimal Template
+ This code was released as part of the Action Set Release Sha project. Action Set Release Sha
  is maintained by Storm Software under the Apache-2.0 license, and is
  free for commercial and private use. For more information, please visit
- our licensing page at https://stormsoftware.com/licenses/projects/minimal-template.
+ our licensing page at https://stormsoftware.com/licenses/projects/action-set-release-sha.
 
  Website:                  https://stormsoftware.com
- Repository:               https://github.com/storm-software/minimal-template
+ Repository:               https://github.com/storm-software/action-set-release-sha
  Documentation:            https://docs.stormsoftware.com
  Contact:                  https://stormsoftware.com/contact
 
@@ -22,9 +22,9 @@ Error.stackTraceLimit = Number.POSITIVE_INFINITY;
 
 /** @type {import('eslint').Linter.Config[]} */
 export default defineConfig({
-  name: "minimal-template",
+  name: "action-set-release-sha",
   nx: false,
-  typescript: false,
+  typescript: true,
   tsdoc: false,
   markdown: true
 });

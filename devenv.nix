@@ -1,6 +1,6 @@
 { pkgs, ... }:
 {
-  name = "storm-software/minimal-template";
+  name = "storm-software/action-set-release-sha";
 
   dotenv.enable = true;
   dotenv.filename = [

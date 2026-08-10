@@ -30,7 +30,7 @@ jobs:
           GH_TOKEN: ${{ secrets.STORM_BOT_GITHUB_TOKEN }}
           START_DATE: ${{ env.START_DATE }}
           END_DATE: ${{ env.END_DATE }}
-          REPOSITORY: storm-software/minimal-template
+          REPOSITORY: storm-software/action-set-release-sha
 
       - name: Create issue
         uses: peter-evans/create-issue-from-file@e8ef132d6df98ed982188e460ebb3b5d4ef3a9cd # v5.0.1

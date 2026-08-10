@@ -1,4 +1,3 @@
-#!/usr/bin/env zx
 /* -------------------------------------------------------------------
 
        🗲 Storm Software - Action Set Release Sha
@@ -17,18 +16,22 @@
 
  ------------------------------------------------------------------- */
 
-import { chalk, echo } from "zx";
+import { defineConfig } from "tsdown";
 
-try {
-  echo`${chalk.whiteBright("⚙️  Bootstrapping the repository...")}`;
+const config = defineConfig({
+  name: "set-release-sha",
+  entry: "src/index.ts",
+  platform: "node",
+  target: "node24",
+  outDir: "dist",
+  format: "cjs",
+  exports: false,
+  minify: true,
+  sourcemap: false,
+  dts: false,
+  deps: {
+    alwaysBundle: ["@actions/core", "@actions/github"]
+  }
+});
 
-  echo`${chalk.green(" ✔ Completed repository bootstrapping successfully!")}`;
-} catch (error) {
-  echo`${chalk.red(
-    error?.message
-      ? error.message
-      : "A failure occurred while bootstrapping the repository"
-  )}`;
-
-  process.exit(1);
-}
+export default config;
