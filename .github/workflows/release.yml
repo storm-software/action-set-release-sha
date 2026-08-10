@@ -1,0 +1,246 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: override release tag
+        required: false
+  push:
+    branches:
+      - main
+      - next
+      - experimental
+    tags:
+      - "v*.*.*"
+  pull_request:
+    types:
+      - labeled
+
+env:
+  CI: true
+  STORM_REPOSITORY: ${{ github.repositoryUrl }}
+  STORM_WORKSPACE_ROOT: ${{ github.workspace }}
+  GITHUB_ACTOR: ${{ github.actor }}
+  GITHUB_TOKEN: ${{ github.token }}
+
+jobs:
+  start:
+    name: Send in process notification
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: write
+      id-token: write
+    if:
+      github.repository == 'storm-software/minimal-template' && (github.ref ==
+      'refs/heads/main' || github.ref == 'refs/heads/next' || github.ref ==
+      'refs/heads/experimental')
+    steps:
+      - name: Send notification - Deployment started
+        uses: storm-software/action-notify@main
+        with:
+          title: "Deployment for ${{ github.repository }} has started (In Progress)"
+          subtitle: "Deployment for ${{ github.repository }} has started - #${{
+            github.run_number }}"
+          description:
+            "Deployment for ${{ github.repository }} is currently in process -
+            #${{ github.run_number }}. Click here to view the changes associated
+            with this deployment: ${{ github.event.pull_request.html_url ||
+            github.event.head_commit.url }} "
+          color: 2077350
+          status: In Progress
+          slack-token: ${{ secrets.STORM_BOT_SLACK_TOKEN }}
+          telegram-token: ${{ secrets.STORM_BOT_TELEGRAM_TOKEN }}
+          telegram-chat: ${{ secrets.STORM_BOT_TELEGRAM_NOTIFICATION_CHAT }}
+          discord-webhook: ${{ secrets.STORM_BOT_DISCORD_WEBHOOK}}
+
+  process:
+    name: Release
+    if: github.event.action != 'labeled' && always() && !cancelled() && !contains(needs.*.result, 'failure') &&
+      github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: write
+      id-token: write
+    needs:
+      - start
+    steps:
+      - name: Checkout [Pull Request]
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          # By default, PRs will be checked-out based on the Merge Commit, but we want the actual branch HEAD.
+          ref: ${{ github.event.pull_request.head.sha }}
+          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
+          fetch-depth: 0
+          token: ${{ secrets.STORM_BOT_GITHUB_TOKEN }}
+          persist-credentials: false
+
+      - name: Checkout `main` branch
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
+          fetch-depth: 0
+          token: ${{ secrets.STORM_BOT_GITHUB_TOKEN }}
+          persist-credentials: false
+
+      - name: Setup workspace
+        uses: storm-software/action-devenv-setup@main
+        with:
+          gpg-sign-key: ${{ secrets.STORM_BOT_GPG_SIGN_KEY }}
+          gpg-private-key: ${{ secrets.STORM_BOT_GPG_PRIVATE_KEY }}
+          gpg-passphrase: ${{ secrets.STORM_BOT_GPG_PASSPHRASE }}
+          storm-bot-github-token: ${{ secrets.STORM_BOT_GITHUB_TOKEN }}
+
+      - name: Build repository updates
+        run: devenv --no-tui shell build
+
+      - id: bump-version
+        if: "!startsWith(github.ref, 'refs/tags/')"
+        uses: haya14busa/action-bumpr@faf6f474bcb6174125cfc569f0b2e24cbf03d496 # v1.11.4
+        with:
+          github_token: ${{ secrets.STORM_BOT_GITHUB_TOKEN }}
+          default_bump_level: "major"
+          tag_as_user: stormie-bot
+          tag_as_email: bot@stormsoftware.com
+
+      - uses: haya14busa/action-update-semver@7d2c558640ea49e798d46539536190aff8c18715 # v1.5.1
+        if: "!steps.bump-version.outputs.skip"
+        with:
+          tag: ${{ steps.bump-version.outputs.next_version }}
+
+      - id: tag
+        uses: haya14busa/action-cond@94f77f7a80cd666cb3155084e428254fea4281fd # v1.2.1
+        with:
+          cond: "${{ startsWith(github.ref, 'refs/tags/') }}"
+          if_true: ${{ github.ref }}
+          if_false: ${{ steps.bump-version.outputs.next_version }}
+
+      - id: create_release
+        uses: shogo82148/actions-create-release@6a396031bc74c57403da1018fec74d24c6aa03cd # v1.9.0
+        if: "steps.tag.outputs.value != ''"
+        with:
+          github_token: ${{ secrets.STORM_BOT_GITHUB_TOKEN }}
+          tag_name: ${{ steps.tag.outputs.value }}
+          release_name: Release ${{ steps.tag.outputs.value }}
+          body: Release ${{ steps.tag.outputs.value }} of the Storm Software - Minimal Template.
+          make_latest: true
+          draft: false
+          prerelease: false
+
+      - name: Upload release artifact
+        if: "steps.tag.outputs.value != ''"
+        uses: shogo82148/actions-upload-release-asset@ee2ae851dc5d938b90075b3ef12c540abfd1ee72 # v1.10.1
+        with:
+          github_token: ${{ secrets.STORM_BOT_GITHUB_TOKEN }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/*
+
+  release-check:
+    environment: production
+    permissions:
+      contents: write
+      id-token: write
+    needs:
+      - start
+    if: github.event.action == 'labeled' && always() && !cancelled() && !contains(needs.*.result, 'failure') &&
+      github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          token: ${{ secrets.STORM_BOT_GITHUB_TOKEN }}
+          persist-credentials: false
+      - name: Post bump version status comment
+        uses: haya14busa/action-bumpr@faf6f474bcb6174125cfc569f0b2e24cbf03d496 # v1.11.4
+
+  success:
+    needs:
+      - process
+      - release-check
+    if: ${{ success() }}
+    name: Send success notification
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Send notification - Deployment successful
+        uses: storm-software/action-notify@main
+        with:
+          title: "Deployment for ${{ github.repository }} has finished (Success)"
+          subtitle:
+            "Deployment for ${{ github.repository }} has finished successfully -
+            #${{ github.run_number }}"
+          description:
+            "Deployment for ${{ github.repository }} has finished successfully
+            - #${{ github.run_number }}. Click here to view the changes
+            associated with this deployment: ${{
+            github.event.pull_request.html_url || github.event.head_commit.url
+            }} "
+          color: 556891
+          status: Success
+          slack-token: ${{ secrets.STORM_BOT_SLACK_TOKEN }}
+          telegram-token: ${{ secrets.STORM_BOT_TELEGRAM_TOKEN }}
+          telegram-chat: ${{ secrets.STORM_BOT_TELEGRAM_NOTIFICATION_CHAT }}
+          discord-webhook: ${{ secrets.STORM_BOT_DISCORD_WEBHOOK}}
+
+  failure:
+    needs:
+      - process
+      - release-check
+    if: ${{ failure() }}
+    name: Send failure notification
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Send notification - Deployment failed
+        uses: storm-software/action-notify@main
+        with:
+          title: "Deployment for ${{ github.repository }} has finished (Failure)"
+          subtitle:
+            "Deployment for ${{ github.repository }} finished with failures - #${{
+            github.run_number }}"
+          description:
+            "Deployment for ${{ github.repository }} finished with failures -
+            #${{ github.run_number }}. Click here to view the changes associated
+            with this deployment: ${{ github.event.pull_request.html_url ||
+            github.event.head_commit.url }} "
+          color: 10027008
+          status: Failure
+          slack-token: ${{ secrets.STORM_BOT_SLACK_TOKEN }}
+          telegram-token: ${{ secrets.STORM_BOT_TELEGRAM_TOKEN }}
+          telegram-chat: ${{ secrets.STORM_BOT_TELEGRAM_NOTIFICATION_CHAT }}
+          discord-webhook: ${{ secrets.STORM_BOT_DISCORD_WEBHOOK}}
+
+  cancelled:
+    needs:
+      - process
+      - release-check
+    if: ${{ cancelled() }}
+    name: Send cancelled notification
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Send notification - Deployment cancelled
+        uses: storm-software/action-notify@main
+        with:
+          title: "Deployment for ${{ github.repository }} has finished (Cancelled)"
+          subtitle:
+            "Deployment for ${{ github.repository }} has been cancelled - #${{
+            github.run_number }}"
+          description:
+            "Deployment for ${{ github.repository }} was stopped before it
+            could complete - #${{ github.run_number }}. Click here to view the
+            changes associated with this deployment: ${{
+            github.event.pull_request.html_url || github.event.head_commit.url
+            }}."
+          color: 16565273
+          status: Cancelled
+          slack-token: ${{ secrets.STORM_BOT_SLACK_TOKEN }}
+          telegram-token: ${{ secrets.STORM_BOT_TELEGRAM_TOKEN }}
+          telegram-chat: ${{ secrets.STORM_BOT_TELEGRAM_NOTIFICATION_CHAT }}
+          discord-webhook: ${{ secrets.STORM_BOT_DISCORD_WEBHOOK}}

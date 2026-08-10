@@ -1,0 +1,74 @@
+{
+  "name": "minimal-template",
+  "version": "0.0.1",
+  "private": true,
+  "description": "A GitHub template used by Storm Software for minimal/single project repositories",
+  "keywords": ["github-action", "devenv", "storm-software"],
+  "homepage": "https://stormsoftware.com",
+  "bugs": "https://github.com/storm-software/minimal-template/issues",
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/storm-software/minimal-template.git"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/storm-software"
+  },
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Storm Software",
+    "email": "contact@stormsoftware.com",
+    "url": "https://stormsoftware.com"
+  },
+  "maintainers": [
+    {
+      "name": "Storm Software",
+      "email": "contact@stormsoftware.com",
+      "url": "https://stormsoftware.com"
+    },
+    {
+      "name": "Pat Sullivan",
+      "email": "admin@stormsoftware.com",
+      "url": "https://patsullivan.org"
+    }
+  ],
+  "scripts": {
+    "bootstrap": "pnpm exec zx scripts/bootstrap.mjs",
+    "build": "pnpm exec zx scripts/build.mjs --prod",
+    "build-dev": "pnpm exec zx scripts/build.mjs --dev",
+    "clean": "pnpm exec zx scripts/clean.mjs",
+    "commit": "pnpm exec storm-git commit",
+    "postinstall": "pnpm bootstrap",
+    "lint": "pnpm exec zx scripts/lint.mjs",
+    "nuke": "pnpm exec zx scripts/nuke.mjs",
+    "push": "git push origin main:main",
+    "update-storm": "pnpm exec zx scripts/update-storm.mjs",
+    "view-config": "pnpm exec storm-config"
+  },
+  "prettier": "@storm-software/prettier/config.json",
+  "devDependencies": {
+    "@storm-software/config": "catalog:",
+    "@storm-software/config-tools": "catalog:",
+    "@storm-software/cspell": "catalog:",
+    "@storm-software/eslint": "catalog:",
+    "@storm-software/git-tools": "catalog:",
+    "@storm-software/linting-tools": "catalog:",
+    "@storm-software/markdownlint": "catalog:",
+    "@storm-software/pnpm-tools": "catalog:",
+    "@storm-software/prettier": "catalog:",
+    "@storm-software/tsconfig": "catalog:",
+    "copyfiles": "catalog:",
+    "eslint": "catalog:",
+    "lefthook": "catalog:",
+    "prettier": "catalog:",
+    "rimraf": "catalog:",
+    "unrs-resolver": "catalog:",
+    "zx": "catalog:"
+  },
+  "packageManager": "pnpm@11.1.2",
+  "engines": {
+    "node": ">=26.3.0",
+    "pnpm": ">=11.1.2"
+  },
+  "triggerEmptyDevReleaseByIncrementingThisNumber": 0
+}

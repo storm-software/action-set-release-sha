@@ -1,0 +1,9 @@
+{
+  "$schema": "https://public.storm-cdn.com/schemas/storm-workspace.schema.json",
+  "extends": "@storm-software/config/presets/storm-software.json",
+  "variant": "minimal",
+  "name": "minimal-template",
+  "namespace": "storm-software",
+  "repository": "https://github.com/storm-software/minimal-template",
+  "packageManager": "pnpm"
+}
