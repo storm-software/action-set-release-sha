@@ -40,7 +40,7 @@ const usePreviousMergeGroupCommit = core.getBooleanInput(
 );
 const defaultWorkingDirectory = ".";
 
-let BASE_SHA: string;
+let BASE_SHA: string | undefined;
 void (async () => {
   if (workingDirectory !== defaultWorkingDirectory) {
     if (existsSync(workingDirectory)) {
@@ -90,12 +90,16 @@ void (async () => {
         lastSuccessfulEvent
       );
       if (!successfulCommit) {
-        throw new Error("No successful commit found");
+        throw new Error(
+          `No successful commit found on '${remote}/main' for event '${lastSuccessfulEvent}'.`
+        );
       }
       BASE_SHA = successfulCommit;
     } catch (e) {
-      core.setFailed((e as Error)?.message);
-      return;
+      if (errorOnNoSuccessfulWorkflow) {
+        core.setFailed((e as Error)?.message);
+        return;
+      }
     }
 
     if (!BASE_SHA) {
