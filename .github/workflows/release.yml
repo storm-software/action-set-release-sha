@@ -121,7 +121,7 @@ jobs:
           if_false: ${{ steps.bump-version.outputs.next_version }}
 
       - id: create_release
-        uses: shogo82148/actions-create-release@8674c0ecee617c8dfb006526bcc22a362c70b88a # v1.9.1
+        uses: shogo82148/actions-create-release@cfc5a8374495dd25fe96f758cc09251ab6286911 # v1.9.2
         if: "steps.tag.outputs.value != ''"
         with:
           github_token: ${{ secrets.STORM_BOT_GITHUB_TOKEN }}
@@ -134,7 +134,7 @@ jobs:
 
       - name: Upload release artifact
         if: "steps.tag.outputs.value != ''"
-        uses: shogo82148/actions-upload-release-asset@d0cb37bb764791e72e64e643cd7056f74f1e77d7 # v1.10.3
+        uses: shogo82148/actions-upload-release-asset@9ee13965a8a51926f330b424693f25fcff8f2ef6 # v1.10.6
         with:
           github_token: ${{ secrets.STORM_BOT_GITHUB_TOKEN }}
           upload_url: ${{ steps.create_release.outputs.upload_url }}
